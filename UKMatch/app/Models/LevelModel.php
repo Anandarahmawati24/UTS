@@ -15,4 +15,10 @@ class LevelModel extends Model
         'level_kode',
         'level_nama',
     ];
+    
+    // Tambahkan relasi ke user
+    public function users()
+    {
+        return $this->hasMany(UserModel::class, 'id_level', 'id_level');
+    }
 }

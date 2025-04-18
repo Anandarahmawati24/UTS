@@ -5,6 +5,7 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\KategoriUkmController;
 use App\Http\Controllers\UkmController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,4 +55,13 @@ Route::group(['prefix' => 'ukm'], function () {
   Route::delete('/{id}', [UkmController::class, 'destroy']); // Hapus UKM
 });
 
-  
+Route::group(['prefix' => 'user'], function () {
+  Route::get('/', [UserController::class, 'index']);         // Halaman awal user
+  Route::post('/list', [UserController::class, 'list']);     // DataTables JSON
+  Route::get('/create', [UserController::class, 'create']);  // Form tambah user
+  Route::post('/', [UserController::class, 'store']);        // Simpan user baru
+  Route::get('/{id}', [UserController::class, 'show']);      // Detail user
+  Route::get('/{id}/edit', [UserController::class, 'edit']); // Form edit user
+  Route::put('/{id}', [UserController::class, 'update']);    // Update user
+  Route::delete('/{id}', [UserController::class, 'destroy']); // Hapus user
+});
