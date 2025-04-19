@@ -272,15 +272,20 @@ class UserController extends Controller
             ], 500);
         }
     }
-    public function showAjax($id)
-{
-    $user = UserModel::find($id); 
-    if (!$user) {
-        abort(404);  // Jika user tidak ditemukan, tampilkan halaman 404
+    
+    public function show_ajax($id)
+    {
+        $user = UserModel::with('level')->find($id);
+    
+        // Pastikan data ditemukan
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not found'], 404);
+        }
+    
+        // Kembalikan data user dalam bentuk view HTML
+        return view('user.show_ajax', compact('user'));
     }
-    return view('user.show_ajax', compact('user'));  // Kembalikan view dengan data user
-}
-
+    
     
 public function confirm_ajax(string $id){
     $user = UserModel::find($id);

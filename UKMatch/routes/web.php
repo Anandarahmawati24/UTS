@@ -63,7 +63,7 @@ Route::group(['prefix' => 'user'], function () {
   Route::get('/create_ajax', [UserController::class, 'create_ajax']);
   Route::post('/store_ajax', [UserController::class, 'store_ajax'])->name('user.store_ajax');
   Route::get('/{id}', [UserController::class, 'show']);      // Detail user
-  Route::get('/user/{id}/show_ajax', [UserController::class, 'show_ajax']);// detail ajax
+  Route::get('/{id}/show_ajax', [UserController::class, 'show_ajax']);// detail ajax
   Route::get('/{id}/edit', [UserController::class, 'edit']); // Form edit user
   Route::put('/{id}', [UserController::class, 'update']);    // Update user
   Route::get('/{id}/edit_ajax', [UserController::class, 'edit_ajax']); // Form edit user ajax

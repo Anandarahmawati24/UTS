@@ -111,5 +111,17 @@
             dataUser.ajax.reload();
         });
     });
+    $(document).on('click', '.btn-detail', function() {
+    var id = $(this).data('id');
+    console.log("ID User: ", id);  // Debugging ID yang dikirimkan
+    $('#myModal').load('/user/show_ajax/' + id, function(response, status, xhr) {
+        if (status === "success") {
+            console.log("Konten Modal: ", response); // Debugging konten modal
+            $('#myModal').modal('show');
+        } else {
+            console.error("Terjadi error saat memuat modal: ", xhr.statusText);
+        }
+    });
+});
 </script>
 @endpush
