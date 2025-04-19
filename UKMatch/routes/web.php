@@ -60,8 +60,15 @@ Route::group(['prefix' => 'user'], function () {
   Route::post('/list', [UserController::class, 'list']);     // DataTables JSON
   Route::get('/create', [UserController::class, 'create']);  // Form tambah user
   Route::post('/', [UserController::class, 'store']);        // Simpan user baru
+  Route::get('/create_ajax', [UserController::class, 'create_ajax']);
+  Route::post('/store_ajax', [UserController::class, 'store_ajax'])->name('user.store_ajax');
   Route::get('/{id}', [UserController::class, 'show']);      // Detail user
+  Route::get('/user/{id}/show_ajax', [UserController::class, 'show_ajax']);// detail ajax
   Route::get('/{id}/edit', [UserController::class, 'edit']); // Form edit user
   Route::put('/{id}', [UserController::class, 'update']);    // Update user
+  Route::get('/{id}/edit_ajax', [UserController::class, 'edit_ajax']); // Form edit user ajax
+  Route::put('/{id}/update_ajax', [UserController::class, 'update_ajax']);    // Update user ajax
+  Route::get('/{id}/delete_ajax', [UserController::class, 'confirm_ajax']);// tampilan form delete user ajax
+  Route::delete('/{id}/delete_ajax', [UserController::class, 'delete_ajax']);// hapus data user ajax
   Route::delete('/{id}', [UserController::class, 'destroy']); // Hapus user
 });
