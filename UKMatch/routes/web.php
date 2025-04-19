@@ -64,10 +64,17 @@ Route::group(['prefix' => 'ukm'], function () {
   Route::post('/list', [UkmController::class, 'list']);   // DataTables JSON
   Route::get('/create', [UkmController::class, 'create']); // Form tambah UKM
   Route::post('/', [UkmController::class, 'store']);      // Simpan UKM baru
+  Route::get('/create_ajax', [UkmController::class, 'create_ajax']);
+  Route::post('/ajax', [UkmController::class, 'store_ajax']);
   Route::get('/{id}', [UkmController::class, 'show']);    // Detail UKM
+  Route::get('/{id_ukm}/show_ajax', [UkmController::class, 'show_ajax']);
   Route::get('/{id}/edit', [UkmController::class, 'edit']); // Form edit UKM
   Route::put('/{id}', [UkmController::class, 'update']);  // Update UKM
+  Route::get('/{id_ukm}/edit_ajax', [UkmController::class, 'edit_ajax']);
+  Route::put('/{id_ukm}/update_ajax', [UkmController::class, 'update_ajax']);
   Route::delete('/{id}', [UkmController::class, 'destroy']); // Hapus UKM
+  Route::get('/{id_ukm}/delete_ajax', [UkmController::class, 'confirm_ajax']);
+  Route::delete('/{id_ukm}/delete_ajax', [UkmController::class, 'delete_ajax']);
 });
 
 Route::group(['prefix' => 'user'], function () {

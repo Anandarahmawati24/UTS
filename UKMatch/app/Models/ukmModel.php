@@ -15,7 +15,7 @@ class ukmModel extends Model
        protected $primaryKey = 'id_ukm';
    
        // Jika tidak menggunakan timestamps (created_at dan updated_at)
-       public $timestamps = false;
+       public $timestamps = true;
    
        // Kolom-kolom yang boleh diisi
        protected $fillable = [

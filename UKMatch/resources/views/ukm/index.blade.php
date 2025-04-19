@@ -5,7 +5,7 @@
     <div class="card-header">
         <h3 class="card-title">{{ $page->title }}</h3>
         <div class="card-tools">
-            <a class="btn btn-sm btn-success mt-1" href="{{ url('ukm/create') }}">Tambah</a>
+            <button class="btn btn-sm btn-success mt-1" data-url="{{ url('/ukm/create_ajax') }}" onclick="modalAction(this)">Tambah Ajax</button>
         </div>
     </div>
     <div class="card-body">
@@ -47,6 +47,7 @@
         </table>
     </div>
 </div>
+<div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
 
 @push('css')
@@ -54,8 +55,15 @@
 
 @push('js')
 <script>
+        function modalAction(element) {
+    let url = typeof element === "string" ? element : element.getAttribute("data-url");
+    $('#myModal').load(url, function() {
+        $('#myModal').modal('show');
+    });
+}
+var dataUkm;
     $(document).ready(function() {
-        var dataUkm = $('#table_ukm').DataTable({
+        dataUkm = $('#table_ukm').DataTable({
             serverSide: true,
             ajax: {
                 "url": "{{ url('ukm/list') }}",
