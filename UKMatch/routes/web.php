@@ -46,10 +46,17 @@ Route::group(['prefix' => 'level'], function () {
     Route::post('/list', [KategoriUkmController::class, 'list']);      // DataTables JSON
     Route::get('/create', [KategoriUkmController::class, 'create']);  // Form tambah kategori
     Route::post('/', [KategoriUkmController::class, 'store']);         // Simpan kategori baru
+    Route::get('/create_ajax', [KategoriUkmController::class, 'create_ajax']);
+    Route::post('/ajax', [KategoriUkmController::class, 'store_ajax']);
     Route::get('/{id}', [KategoriUkmController::class, 'show']);         // Detail kategori
+    Route::get('/{id}/show_ajax', [KategoriUkmController::class, 'show_ajax']);
     Route::get('/{id}/edit', [KategoriUkmController::class, 'edit']);   // Form edit kategori
     Route::put('/{id}', [KategoriUkmController::class, 'update']);      // Update kategori
+    Route::get('/{id}/edit_ajax', [KategoriUkmController::class, 'edit_ajax']);
+    Route::put('/{id}/update_ajax', [KategoriUkmController::class, 'update_ajax']);
     Route::delete('/{id}', [KategoriUkmController::class, 'destroy']);  // Hapus kategori
+    Route::get('/{id}/delete_ajax', [KategoriUkmController::class, 'confirm_ajax']);
+    Route::delete('/{id}/delete_ajax', [KategoriUkmController::class, 'delete_ajax']);
 });
 
 Route::group(['prefix' => 'ukm'], function () {

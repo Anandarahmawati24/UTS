@@ -5,28 +5,28 @@
     <div class="card-header">
         <h3 class="card-title">{{ $page->title }}</h3>
         <div class="card-tools">
-            <a class="btn btn-sm btn-primary mt-1" href="{{ url('kategori_ukm/create') }}">Tambah</a>
+            <button class="btn btn-sm btn-success mt-1" data-url="{{ url('/kategori_ukm/create_ajax') }}" onclick="modalAction(this)">Tambah Ajax</button>
         </div>
     </div>
     <div class="card-body">
         @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success">{{ session('success') }}</div>
         @endif
         @if (session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
+        <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
-
         <table class="table table-bordered table-striped table-hover table-sm" id="table_kategori_ukm">
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Nama Kategori UKM</th>
+                    <th>ID</th>
+                    <th>Nama Kategori</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
         </table>
     </div>
 </div>
+<div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
 
 @push('css')
@@ -34,15 +34,25 @@
 
 @push('js')
 <script>
+    // Fungsi untuk memanggil modal
+    function modalAction(element) {
+        let url = typeof element === "string" ? element : element.getAttribute("data-url");
+        $('#myModal').load(url, function() {
+            $('#myModal').modal('show');
+        });
+    }
+
+    var dataKategoriUkm;
     $(document).ready(function() {
-        var dataKategoriUkm = $('#table_kategori_ukm').DataTable({
+        // Inisialisasi DataTable
+        dataKategoriUkm = $('#table_kategori_ukm').DataTable({
             serverSide: true,
             ajax: {
                 "url": "{{ url('kategori_ukm/list') }}",
                 "dataType": "json",
                 "type": "POST",
                 "data": function(d) {
-                    d._token = "{{ csrf_token() }}";
+                    d.kategori_filter = $('#kategori_filter').val(); // Mengirimkan filter ke server
                 }
             },
             columns: [
@@ -60,19 +70,39 @@
                 },
                 {
                     data: "aksi",
-                    className: "text-center",
+                    className: "",
                     orderable: false,
                     searchable: false
                 }
-            ],
-            order: [[2, 'desc']]
+            ]
         });
-
-        function formatTanggal(date) {
-            if (date == null) return '';
-            var options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-            return new Date(date).toLocaleDateString('id-ID', options);
+    });
+    // Fungsi untuk memanggil modal dan menampilkan detail kategori
+function showDetailKategori(idKategori) {
+    $.ajax({
+        url: '/kategori_ukm/show/' + idKategori,
+        type: 'GET',
+        success: function(response) {
+            if (response.success) {
+                // Memasukkan hasil HTML ke dalam modal body
+                $('#modal-kategori-ukm .modal-content').html(response.html);
+                $('#modal-kategori-ukm').modal('show');  // Menampilkan modal
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.message
+                });
+            }
+        },
+        error: function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Terjadi kesalahan saat memuat data.'
+            });
         }
     });
+}
 </script>
 @endpush

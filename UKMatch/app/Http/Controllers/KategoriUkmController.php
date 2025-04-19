@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\KategoriUkmModel;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 class KategoriUkmController extends Controller
 {
@@ -19,22 +21,25 @@ class KategoriUkmController extends Controller
         ];
 
         $activeMenu = 'kategori_ukm';
-        
-        return view('kategori_ukm.index', compact('breadcrumb', 'page', 'activeMenu'));
+        // Ambil data kategori untuk dropdown filter
+    $kategori_ukm = KategoriUkmModel::select('id_kategori', 'nama_kategori')->get();
+
+    return view('kategori_ukm.index', compact('breadcrumb', 'page', 'activeMenu', 'kategori_ukm'));
     }
 
     public function list(Request $request)
     {
         $kategori = KategoriUkmModel::select('id_kategori', 'nama_kategori', 'created_at', 'updated_at');
-
+        // Filter berdasarkan kategori jika ada
+    if ($request->kategori_filter) {  // Gunakan kategori_filter, sesuai yang dikirim dari frontend
+        $kategori->where('id_kategori', $request->kategori_filter);  // Filter berdasarkan id_kategori
+    }
         return DataTables::of($kategori)
             ->addIndexColumn()
             ->addColumn('aksi', function ($item) {
-                $btn = '<a href="' . url('/kategori_ukm/' . $item->id_kategori) . '" class="btn btn-info btn-sm">Detail</a> ';
-                $btn .= '<a href="' . url('/kategori_ukm/' . $item->id_kategori . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
-                $btn .= '<form class="d-inline-block" method="POST" action="' . url('/kategori_ukm/' . $item->id_kategori) . '">';
-                $btn .= csrf_field() . method_field('DELETE');
-                $btn .= '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\')">Hapus</button></form>';
+                $btn = '<button onclick="modalAction(\'' . url('/kategori_ukm/' . $item->id_kategori . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/kategori_ukm/' . $item->id_kategori . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/kategori_ukm/' . $item->id_kategori . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
                 return $btn;
             })
             ->rawColumns(['aksi'])
@@ -107,7 +112,7 @@ class KategoriUkmController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'nama_kategori' => 'required|string|max:255|unique:kategori_ukm,nama_kategori,'.$id.',id_kategori',
+            'nama_kategori' => 'required|string|max:255|unique:kategori_ukm,nama_kategori,' . $id . ',id_kategori',
         ]);
 
         $kategori = KategoriUkmModel::findOrFail($id);
@@ -120,16 +125,134 @@ class KategoriUkmController extends Controller
     {
         try {
             $kategori = KategoriUkmModel::findOrFail($id);
-            
+
             // Cek apakah kategori ini digunakan oleh UKM
             if ($kategori->ukm()->exists()) {
                 return redirect('/kategori_ukm')->with('error', 'Gagal menghapus kategori. Data masih digunakan oleh UKM.');
             }
-            
+
             $kategori->delete();
             return redirect('/kategori_ukm')->with('success', 'Data Kategori UKM berhasil dihapus');
         } catch (\Illuminate\Database\QueryException $e) {
             return redirect('/kategori_ukm')->with('error', 'Gagal menghapus kategori. Data masih terkait dengan tabel lain.');
         }
+    }
+
+    public function create_ajax()
+    {
+        $kategori_ukm = KategoriUkmModel::select('id_kategori', 'nama_kategori')->get();
+        return view('kategori_ukm.create_ajax')->with('kategori_ukm', $kategori_ukm);
+    }
+
+    // Menyimpan data kategori UKM baru
+    public function store_ajax(Request $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'nama_kategori' => 'required|string|min:3|max:100|unique:kategori_ukm,nama_kategori',
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors(),
+                ]);
+            }
+
+            KategoriUkmModel::create($request->all());
+            return response()->json([
+                'status'  => true,
+                'message' => 'Kategori UKM berhasil ditambahkan'
+            ]);
+        }
+
+        return redirect('/kategori_ukm');
+    }
+
+    // Menampilkan form edit kategori UKM
+    public function edit_ajax(string $id)
+    {
+        $kategori_ukm = KategoriUkmModel::find($id);
+        return view('kategori_ukm.edit_ajax', ['kategori_ukm' => $kategori_ukm]);
+    }
+
+    // Proses update kategori UKM via AJAX
+    public function update_ajax(Request $request, string $id)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'nama_kategori' => 'required|string|min:3|max:100|unique:kategori_ukm,nama_kategori,' . $id . ',id_kategori'
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi gagal.',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            $kategori = KategoriUkmModel::find($id);
+            if ($kategori) {
+                $kategori->update($request->all());
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data kategori UKM berhasil diperbarui'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data tidak ditemukan'
+                ]);
+            }
+        }
+
+        return redirect('/');
+    }
+
+    // Menampilkan konfirmasi hapus
+    public function confirm_ajax(string $id)
+    {
+        $kategori_ukm = KategoriUkmModel::find($id);
+        return view('kategori_ukm.confirm_ajax', ['kategori_ukm' => $kategori_ukm]);
+    }
+
+    // Hapus data kategori UKM via AJAX
+    public function delete_ajax(Request $request, string $id)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $kategori = KategoriUkmModel::find($id);
+            if ($kategori) {
+                $kategori->delete();
+                return response()->json([
+                    'status'  => true,
+                    'message' => 'Data kategori UKM berhasil dihapus'
+                ]);
+            } else {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Data tidak ditemukan'
+                ]);
+            }
+        }
+        return redirect('/');
+    }
+
+    // Menampilkan detail kategori UKM
+    public function show_ajax($id_kategori)
+    {
+        $kategori = KategoriUkmModel::find($id_kategori);
+
+        if (!$kategori) {
+            return response()->json(['success' => false, 'message' => 'Kategori UKM tidak ditemukan'], 404);
+        }
+
+        return view('kategori_ukm.show_ajax', compact('kategori'));
     }
 }
