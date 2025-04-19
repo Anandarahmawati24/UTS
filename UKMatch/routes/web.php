@@ -6,6 +6,7 @@ use App\Http\Controllers\LevelController;
 use App\Http\Controllers\KategoriUkmController;
 use App\Http\Controllers\UkmController;
 use App\Http\Controllers\UserController;
+use Monolog\Level;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +28,13 @@ Route::group(['prefix' => 'level'], function () {
     Route::post('/list', [LevelController::class, 'list']); // DataTables JSON
     Route::get('/create', [LevelController::class, 'create']); // Form tambah level
     Route::post('/', [LevelController::class, 'store']); // Simpan level baru
+    Route::get('/create_ajax', [LevelController::class, 'create_ajax']); // Menampilkan halaman form ajax tambah level
+    Route::post('/ajax', [LevelController::class, 'store_ajax']); // Menyimpan data level baru ajax
+    Route::get('/{id}/edit_ajax', [LevelController::class, 'edit_ajax']); // Menampilkan halaman form edit level
+    Route::put('/{id}/update_ajax', [LevelController::class, 'update_ajax']); // Menyimpan perubahan data level
+    Route::get('/{id}/delete_ajax', [LevelController::class, 'confirm_ajax']); // Tampilan form delete level AJAX
+    Route::delete('/{id}/delete_ajax', [LevelController::class, 'delete_ajax']); // Hapus data level AJAX
+    Route::get('/{id}/show_ajax', [LevelController::class, 'show_ajax']);// detail ajax
     Route::get('/{id}', [LevelController::class, 'show']); // Detail level
     Route::get('/{id}/edit', [LevelController::class, 'edit']); // Form edit level
     Route::put('/{id}', [LevelController::class, 'update']); // Update level
