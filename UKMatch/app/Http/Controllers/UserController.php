@@ -200,7 +200,12 @@ class UserController extends Controller
         }
 
         try {
-            UserModel::create($request->all());
+            UserModel::create([
+                'username' => $request->username,
+                'nama' => $request->nama,
+                'password' => Hash::make($request->password),
+                'id_level' => $request->id_level
+            ]);
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -272,20 +277,19 @@ class UserController extends Controller
             ], 500);
         }
     }
-    
-    public function show_ajax($id)
-    {
-        $user = UserModel::with('level')->find($id);
-    
-        // Pastikan data ditemukan
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'User not found'], 404);
-        }
-    
-        // Kembalikan data user dalam bentuk view HTML
-        return view('user.show_ajax', compact('user'));
+   public function show_ajax($id)
+{
+    $user = UserModel::with('level')->find($id);
+
+    // Pastikan data ditemukan
+    if (!$user) {
+        return response()->json(['success' => false, 'message' => 'User not found'], 404);
     }
-    
+
+    // Kembalikan data user dalam bentuk view HTML
+    return view('user.show_ajax', compact('user'));
+}
+
     
 public function confirm_ajax(string $id){
     $user = UserModel::find($id);
